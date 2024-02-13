@@ -36,3 +36,56 @@
     transform: rotate(360deg);
   }
 }
+
+.poker-table {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  margin: 20px auto;
+  background-color: #228B22; /* Cor da mesa */
+  border-radius: 50%;
+}
+
+.community-cards {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+}
+
+
+.player-name {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.poker-table {
+  position: relative;
+  width: 800px;
+  height: 400px;
+  margin: 40px auto;
+  background-color: #228B22;
+  border-radius: 20px;
+}
+
+.player {
+  position: absolute;
+  min-width: 100px;
+  padding: 5px;
+  background-color: #fff;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transform: translate(-50%, -50%);
+}
+
+
+.card {
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 5px;
+  display: inline-block;
+}
+
+
