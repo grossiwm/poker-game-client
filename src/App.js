@@ -4,6 +4,7 @@ import Table from './Table';
 import Player from './Player';
 import io from 'socket.io-client';
 import { useEffect } from 'react';
+import Chat from './Chat';
 
 function App() {
 
@@ -11,49 +12,53 @@ function App() {
 
   const [players, setPlayers] = useState([]);
 
+  const roomID = 'algumaSala123';
+
+  const [socket, setSocket] = useState(null);
+  
+  const onDealFlop = () => {
+    setCommunityCards(deck.slice(0, 3));
+  };
+
+  const onDealTurn = () => {
+    setCommunityCards(prevCards => [...prevCards, deck[3]]);
+  };
+
+  const onDealRiver = () => {
+    setCommunityCards(prevCards => [...prevCards, deck[4]]);
+  };
+
   useEffect(() => {
-
-    const onDealFlop = () => {
-      setCommunityCards(deck.slice(0, 3));
-    };
+    const newSocket = io('http://localhost:7000');
   
-    const onDealTurn = () => {
-      setCommunityCards(prevCards => [...prevCards, deck[3]]);
-    };
-  
-    const onDealRiver = () => {
-      setCommunityCards(prevCards => [...prevCards, deck[4]]);
-    };
-  
-
-    const socket = io('http://localhost:7000');
+    newSocket.on('connect', () => {
+      newSocket.emit('joinGameRoom', { roomID, playerData: {name: "Player " + newSocket.id} });
     
-    socket.on('connect', () => {
-      console.log('Conectado ao servidor');
-      // Enviar evento para iniciar o jogo, por exemplo
-      socket.emit('iniciarJogo');
-    });
+      newSocket.on('atualizarJogo', (data) => {
+        // Atualizar o estado do jogo com base nos dados recebidos
+      });
     
-    socket.on('atualizarJogo', (data) => {
-      // Atualizar o estado do jogo com base nos dados recebidos
+      newSocket.on('playersList', (players) => {
+        setPlayers(players);
+      });
+  
+  
+      newSocket.on('dealFlop', onDealFlop);
+      newSocket.on('dealTurn', onDealTurn);
+      newSocket.on('dealRiver', onDealRiver);
     });
   
-    socket.on('playersList', (players) => {
-      setPlayers(players);
-    });
-
-    socket.on('dealFlop', onDealFlop);
-    socket.on('dealTurn', onDealTurn);
-    socket.on('dealRiver', onDealRiver);
+    setSocket(newSocket);
   
-    
     return () => {
-      socket.off('dealFlop', onDealFlop);
-      socket.off('dealTurn', onDealTurn);
-      socket.off('dealRiver', onDealRiver);
-      socket.disconnect();
+      newSocket.off('atualizarJogo');
+      newSocket.off('playersList');
+      newSocket.off('dealFlop');
+      newSocket.off('dealTurn');
+      newSocket.off('dealRiver');
+      newSocket.disconnect();
     };
-  }, []); 
+  }, []);
 
   const deck = [
     { suit: 'Hearts', value: '10' },
@@ -81,6 +86,7 @@ function App() {
           <Player key={player.name} name={player.name} position={calculatePosition(index, players.length)} />
         ))}
       </div>
+      {socket && <Chat socket={socket} roomID={roomID} /> }
     </div>
   );
 }
