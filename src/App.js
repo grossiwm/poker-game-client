@@ -1,32 +1,22 @@
 import React, { useState } from 'react';
 import './App.css';
-import Table from './components/Table';
-import Player from './components/Player';
 import io from 'socket.io-client';
 import { useEffect } from 'react';
 import Chat from './components/Chat';
+import GameTable from './components/GameTable';
+import ActionPanel from './components/ActionPanel';
 
 function App() {
 
-  const [communityCards, setCommunityCards] = useState([]);
 
   const [players, setPlayers] = useState([]);
 
   const roomID = 'algumaSala123';
 
   const [socket, setSocket] = useState(null);
+
+  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   
-  const onDealFlop = () => {
-    setCommunityCards(deck.slice(0, 3));
-  };
-
-  const onDealTurn = () => {
-    setCommunityCards(prevCards => [...prevCards, deck[3]]);
-  };
-
-  const onDealRiver = () => {
-    setCommunityCards(prevCards => [...prevCards, deck[4]]);
-  };
 
   useEffect(() => {
     const newSocket = io('http://localhost:7000');
@@ -41,11 +31,12 @@ function App() {
       newSocket.on('playersList', (players) => {
         setPlayers(players);
       });
+
+      newSocket.on('yourTurn', () => {
+        setIsPlayerTurn(true);
+      });
   
-  
-      newSocket.on('dealFlop', onDealFlop);
-      newSocket.on('dealTurn', onDealTurn);
-      newSocket.on('dealRiver', onDealRiver);
+
     });
   
     setSocket(newSocket);
@@ -53,40 +44,22 @@ function App() {
     return () => {
       newSocket.off('atualizarJogo');
       newSocket.off('playersList');
-      newSocket.off('dealFlop');
-      newSocket.off('dealTurn');
-      newSocket.off('dealRiver');
+      newSocket.off('yourTurn');
       newSocket.disconnect();
     };
   }, []);
 
-  const deck = [
-    { suit: 'Hearts', value: '10' },
-    { suit: 'Diamonds', value: 'J' },
-    { suit: 'Clubs', value: 'Q' },
-    { suit: 'Spades', value: 'K' },
-    { suit: 'Hearts', value: 'A' },
-  ]; 
-
-  const tableWidth = 800; 
-  const tableHeight = 400; 
-
-  const calculatePosition = (index, total) => {
-    const x = index < total / 2 ? (tableWidth / (total / 2)) * index : (tableWidth / (total / 2)) * (index - total / 2);
-    const y = index < total / 2 ? 0 : tableHeight;
-    return { left: `${x}px`, top: `${y}px` };
-  };
+  
 
   return (
     <div className="App">
       <h1>Poker Texas Hold'em</h1>
-      <div className="poker-table">
-        <Table cards={communityCards} />
-        {players.map((player, index) => (
-          <Player key={player.name} name={player.name} position={calculatePosition(index, players.length)} />
-        ))}
-      </div>
-      {socket && <Chat socket={socket} roomID={roomID} /> }
+      {socket && <GameTable 
+        players={players} 
+        socket={socket}
+      />}
+      {isPlayerTurn && socket && <ActionPanel socket={socket}/>}
+      {socket && <Chat socket={socket} /> }
     </div>
   );
 }

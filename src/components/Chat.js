@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-function Chat({ socket, roomID }) {
+function Chat({ socket}) {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
 
   const sendMessage = () => {
     if (message) {
-      socket.emit('chatMessage', { roomID, message });
+      socket.emit('chatMessage', { message });
       setMessage('');
     }
   };
