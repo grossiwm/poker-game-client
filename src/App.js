@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import './App.css';
-import Table from './Table';
-import Player from './Player';
+import Table from './components/Table';
+import Player from './components/Player';
 import io from 'socket.io-client';
 import { useEffect } from 'react';
-import Chat from './Chat';
+import Chat from './components/Chat';
 
 function App() {
 
