@@ -16,23 +16,35 @@ function GameTable({ players, socket }) {
     { suit: 'Hearts', value: 'A' },
   ]; 
 
+  const currentPlayerCards = [
+    { suit: 'Hearts', value: '10' },
+    { suit: 'Diamonds', value: 'J' }
+  ]; 
+
 
   const [communityCards, setCommunityCards] = useState([]);
+  const [round, setRound] = useState('preflop')
 
 
-
+  const onDealPreFlop = () => {
+    setCommunityCards([])
+  }
 
   const onDealFlop = () => {
     setCommunityCards(deck.slice(0, 3));
   };
 
   const onDealTurn = () => {
-    setCommunityCards(prevCards => [...prevCards, deck[3]]);
+    setCommunityCards(deck.slice(0, 4));
   };
 
   const onDealRiver = () => {
-    setCommunityCards(prevCards => [...prevCards, deck[4]]);
+    setCommunityCards(deck.slice(0, 5));
   };
+
+  const isCurrentUser = (playerId, currentPlayerId) => {
+    return playerId === currentPlayerId;
+  }
 
   const calculatePosition = (index, total) => {
     const x = index < total / 2 ? (tableWidth / (total / 2)) * index : (tableWidth / (total / 2)) * (index - total / 2);
@@ -45,25 +57,37 @@ function GameTable({ players, socket }) {
 
   useEffect(() => {
     if (socket) {
-      socket.on('dealFlop', onDealFlop);
-      socket.on('dealTurn', onDealTurn);
-      socket.on('dealRiver', onDealRiver);
+      socket.on('roundSet', ({round}) => {
+        console.log('round:' + round)
+        setRound(round);
+        if (round === 'flop') {
+          onDealFlop();
+        } else if (round === 'turn') {
+          onDealTurn()
+        } else if (round === 'river') {
+          onDealRiver();
+        } else if (round === 'preflop') {
+          console.log('esvaziando cartas')
+          onDealPreFlop();
+        }
+      });
       
-      // Limpeza
       return () => {
-        socket.off('dealFlop');
-        socket.off('dealTurn');
-        socket.off('dealRiver');
-        socket.off('yourTurn');
+        socket.off('roundSet');
       };
     }
+
   }, [socket]);
 
   return (
     <div className="poker-table">
       <Table cards={communityCards} />
       {players.map((player, index) => (
-        <Player key={player.name} name={player.name} position={calculatePosition(index, players.length)} />
+        <Player key={player.name}
+         name={player.name}
+          position={calculatePosition(index, players.length)}
+           isCurrentUser={isCurrentUser(player.id, socket.id)}
+            cards={currentPlayerCards} />
       ))}
     </div>
   );
