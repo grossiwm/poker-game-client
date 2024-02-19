@@ -7,39 +7,25 @@ import { useEffect } from 'react';
 
 function GameTable({ players, socket }) {
 
-
-  const deck = [
-    { suit: 'Hearts', value: '10' },
-    { suit: 'Diamonds', value: 'J' },
-    { suit: 'Clubs', value: 'Q' },
-    { suit: 'Spades', value: 'K' },
-    { suit: 'Hearts', value: 'A' },
-  ]; 
-
-  const currentPlayerCards = [
-    { suit: 'Hearts', value: '10' },
-    { suit: 'Diamonds', value: 'J' }
-  ]; 
-
-
   const [communityCards, setCommunityCards] = useState([]);
   const [round, setRound] = useState('preflop')
+  const [currentPlayerCards, setCurrentPlayerCards] = useState([]);
 
 
   const onDealPreFlop = () => {
     setCommunityCards([])
   }
 
-  const onDealFlop = () => {
-    setCommunityCards(deck.slice(0, 3));
+  const onDealFlop = (cards) => {
+    setCommunityCards(cards);
   };
 
-  const onDealTurn = () => {
-    setCommunityCards(deck.slice(0, 4));
+  const onDealTurn = (cards) => {
+    setCommunityCards(cards);
   };
 
-  const onDealRiver = () => {
-    setCommunityCards(deck.slice(0, 5));
+  const onDealRiver = (cards) => {
+    setCommunityCards(cards);
   };
 
   const isCurrentUser = (playerId, currentPlayerId) => {
@@ -57,20 +43,22 @@ function GameTable({ players, socket }) {
 
   useEffect(() => {
     if (socket) {
-      socket.on('roundSet', ({round}) => {
-        console.log('round:' + round)
+      socket.on('roundSet', ({round, cards}) => {
         setRound(round);
         if (round === 'flop') {
-          onDealFlop();
+          onDealFlop(cards);
         } else if (round === 'turn') {
-          onDealTurn()
+          onDealTurn(cards)
         } else if (round === 'river') {
-          onDealRiver();
+          onDealRiver(cards);
         } else if (round === 'preflop') {
-          console.log('esvaziando cartas')
           onDealPreFlop();
         }
       });
+
+      socket.on('setPlayerCards', (cards) => {
+        setCurrentPlayerCards(cards);
+      })
       
       return () => {
         socket.off('roundSet');

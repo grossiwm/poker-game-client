@@ -13,7 +13,6 @@ function Chat({ socket}) {
 
   useEffect(() => {
     socket.on('newChatMessage', (data) => {
-      console.log("received: " + data.message);
       setChatMessages((prevMessages) => [...prevMessages, data]);
     });
 

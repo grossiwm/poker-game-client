@@ -1,7 +1,6 @@
 function ActionPanel({ socket }) {
 
     const onAction = (action, amount) => {
-        console.log("action: " + action + ", amount: " + amount);
         socket.emit('playerAction', { action, amount });
     }
 
