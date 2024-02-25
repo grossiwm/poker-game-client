@@ -1,7 +1,8 @@
 import React from 'react';
 import Card from './Card';
+import Pot from './Pot';
 
-function Table({ cards }) {
+function Table({ cards, potTotal }) {
   return (
     <div className="table">
       <div className="community-cards">
@@ -9,6 +10,7 @@ function Table({ cards }) {
           <Card key={index} suit={card.suit} value={card.value} />
         ))}
       </div>
+      <Pot totalChips={potTotal} />
     </div>
   );
 }

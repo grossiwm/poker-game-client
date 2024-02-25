@@ -10,6 +10,7 @@ function GameTable({ players, socket }) {
   const [communityCards, setCommunityCards] = useState([]);
   const [round, setRound] = useState('preflop')
   const [currentPlayerCards, setCurrentPlayerCards] = useState([]);
+  const [potTotal, setPotTotal] = useState([]);
 
 
   const onDealPreFlop = () => {
@@ -56,6 +57,10 @@ function GameTable({ players, socket }) {
         }
       });
 
+      socket.on('potTotal', ({pot}) => {
+        setPotTotal(pot);
+      })
+
       socket.on('setPlayerCards', (cards) => {
         setCurrentPlayerCards(cards);
       })
@@ -69,12 +74,13 @@ function GameTable({ players, socket }) {
 
   return (
     <div className="poker-table">
-      <Table cards={communityCards} />
+      <Table cards={communityCards} potTotal={potTotal}/>
       {players.map((player, index) => (
         <Player key={player.name}
          name={player.name}
           position={calculatePosition(index, players.length)}
            isCurrentUser={isCurrentUser(player.id, socket.id)}
+           chips={player.chips}
             cards={currentPlayerCards} />
       ))}
     </div>

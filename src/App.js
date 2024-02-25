@@ -15,7 +15,18 @@ function App() {
 
   const [socket, setSocket] = useState(null);
 
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
+  const [positionTurn, setPositionTurn] = useState(null);
+
+  const isPlayerTurn = (players, positionTurn) => {
+    const playersFound = players.filter(p => p.id === socket.id);
+    if (playersFound.length > 0) {
+      const playerFound = playersFound[0];
+      console.log(`position: ${playerFound.position}, positionToPlay: ${positionTurn}`)
+      return playerFound.position === positionTurn;
+    }
+    return false;
+
+  }
   
 
   useEffect(() => {
@@ -32,8 +43,9 @@ function App() {
         setPlayers(players);
       });
 
-      newSocket.on('yourTurn', () => {
-        setIsPlayerTurn(true);
+      newSocket.on('positionTurn', ({position}) => {
+        console.log('received:' + position)
+        setPositionTurn(position);
       });
   
 
@@ -44,7 +56,7 @@ function App() {
     return () => {
       newSocket.off('atualizarJogo');
       newSocket.off('playersList');
-      newSocket.off('yourTurn');
+      newSocket.off('positionTurn');
       newSocket.disconnect();
     };
   }, []);
@@ -58,7 +70,7 @@ function App() {
         players={players} 
         socket={socket}
       />}
-      {isPlayerTurn && socket && <ActionPanel socket={socket}/>}
+      {socket && isPlayerTurn(players, positionTurn) && <ActionPanel socket={socket}/>}
       {socket && <Chat socket={socket} /> }
     </div>
   );
