@@ -1,7 +1,6 @@
 import React from 'react';
 import Table from './Table';
 import Player from './Player';
-import ActionPanel from './ActionPanel';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
@@ -33,7 +32,7 @@ function GameTable({ players, socket }) {
     return playerId === currentPlayerId;
   }
 
-  const calculatePosition = (index, total) => {
+  const   calculatePosition = (index, total) => {
     const x = index < total / 2 ? (tableWidth / (total / 2)) * index : (tableWidth / (total / 2)) * (index - total / 2);
     const y = index < total / 2 ? 0 : tableHeight;
     return { left: `${x}px`, top: `${y}px` };
@@ -75,7 +74,7 @@ function GameTable({ players, socket }) {
   return (
     <div className="poker-table">
       <Table cards={communityCards} potTotal={potTotal}/>
-      {players.map((player, index) => (
+      {players.slice().sort((a, b) => a.position - b.position).map((player, index) => (
         <Player key={player.name}
          name={player.name}
           position={calculatePosition(index, players.length)}

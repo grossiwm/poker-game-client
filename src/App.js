@@ -21,7 +21,6 @@ function App() {
     const playersFound = players.filter(p => p.id === socket.id);
     if (playersFound.length > 0) {
       const playerFound = playersFound[0];
-      console.log(`position: ${playerFound.position}, positionToPlay: ${positionTurn}`)
       return playerFound.position === positionTurn;
     }
     return false;
