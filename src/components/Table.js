@@ -10,7 +10,7 @@ function Table({ cards, potTotal }) {
           <Card key={index} suit={card.suit} value={card.value} />
         ))}
       </div>
-      <Pot totalChips={potTotal} />
+      <Pot className="pot" totalChips={potTotal} />
     </div>
   );
 }
